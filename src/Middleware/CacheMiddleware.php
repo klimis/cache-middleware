@@ -12,16 +12,12 @@
 
 namespace Klimis\CacheMiddleware\Middleware;
 
-use App\Traits\HelperFunctions;
 use Closure;
 use Illuminate\Support\Facades\Cache;
-use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\Request;
 
 class CacheMiddleware
 {
-    use HelperFunctions;
-
     static $indexKey = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.

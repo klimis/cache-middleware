@@ -1,0 +1,10 @@
+/vendor
+/.idea
+Homestead.json
+Homestead.yaml
+.env
+/deploy/id_rsa
+phploy.log
+phploy.ini
+/storage
+
