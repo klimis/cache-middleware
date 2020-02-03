@@ -1,5 +1,5 @@
 ### Cache Middleware (laravel)
-####Installation
+#### Installation
 Composer:
 
 `"repositories": [
@@ -10,7 +10,7 @@ Composer:
      ]`
 
 `"klimis/cachemiddleware": "^1.0.1"`     
-####Usage
+#### Usage
 Set methods to be cached in Controllers. Add to any controller `protected $cache = ['getPage'];` to cache forever or `protected $cache = [protected  $cache = [
                                                                                                  'getPage' => 60
                                                                                              ]];` 
