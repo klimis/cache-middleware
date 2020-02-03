@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * TODO:: DELETE EXPIRED KEYS FROM $indexKey
+ */
 
 /**
  * Middleware for caching Controllers responses. To use controller must:
@@ -13,11 +15,14 @@ namespace Klimis\CacheMiddleware\Middleware;
 use App\Traits\HelperFunctions;
 use Closure;
 use Illuminate\Support\Facades\Cache;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\Request;
 
 class CacheMiddleware
 {
     use HelperFunctions;
+
+    static $indexKey = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.
      * if cache is disabled just proceed with the response
@@ -30,22 +35,19 @@ class CacheMiddleware
         $controller = $this->getCalledController($request);
         $method = $this->getCalledMethod($request);
         $timeout = $controller->cacheMethod($method); //timeout in seconds. if -1 then no cache
-
-        if ($timeout >= 0) { //if method has cache proprty set
+        if ($timeout >= 0) { //if method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller);
-
-            if (Cache::has($cacheKey)) {
+            if (Cache::has($cacheKey)) { //return if it exists in cache
                 return response()->json(json_decode(Cache::get($cacheKey), true));
             }
             $response = $next($request);
-
             if ($response->getStatusCode() == 200) {//add only if response is 200 with data
                 if($timeout === 0) {
-                    Cache::forever($cacheKey, $response->getContent()); //add to cache
+                    Cache::forever($cacheKey, $response->getContent()); // add to cache forever
                 }else{
-                    Cache::put($cacheKey, $response->getContent(),$timeout); //add to cache
+                    Cache::put($cacheKey, $response->getContent(),$timeout); //add to cache with timeout
                 }
-                self::addKey($cacheKey); //add to main cache key used for tracking all keys
+                $this->addKey($cacheKey); //add to main cache key used for tracking all keys
             }
         }
         $response = $next($request);
@@ -86,5 +88,43 @@ class CacheMiddleware
     protected function stringify(array $array)
     {
         return collect($array)->toJson();
+    }
+
+    /** Create key if not exists in reference cache key
+     * @param string $key
+     */
+    public function addKey(string $key)
+    {
+        $keys = $this->getAllKeys();
+        if (is_array($keys) && !in_array($key, $keys)) {
+            array_push($keys, $key);
+        }
+        Cache::put(self::$indexKey, implode('####', $keys));
+    }
+
+    /** Get all keys
+     * @return array
+     */
+    public function getAllKeys()
+    {
+        $keysString = Cache::get(self::$indexKey);
+        if ($keysString && (strpos($keysString, '####') !== false)) {
+            $allKeys = explode('####', $keysString);
+        } else {
+            $allKeys[] = $keysString;
+        }
+        return array_filter($allKeys);
+    }
+
+    /** Remove key from index  key
+     * @param string $keytodel
+     */
+    public function removeKey(string $keytodel)
+    {
+        $keys = $this->getAllKeys();
+        if (($key = array_search($keytodel, $keys)) !== false) {
+            unset($keys[$key]);
+        }
+        Cache::put(self::$indexKey, implode('####', $keys));
     }
 }

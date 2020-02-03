@@ -1,5 +1,6 @@
 {
     "name": "klimis/cachemiddleware",
+    "type": "library",
     "authors": [
         {
             "name": "Klimis",
