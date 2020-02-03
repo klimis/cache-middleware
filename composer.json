@@ -1,0 +1,19 @@
+{
+    "name": "klimis/cachemiddleware",
+    "authors": [
+        {
+            "name": "Klimis",
+            "email": "klimis.symeonidis@ext.ec.europa.eu"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Klimis\\CacheMiddleware\\": "src/"
+        },
+        "classmap": [
+
+        ]
+    }
+}
