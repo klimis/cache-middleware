@@ -66,12 +66,4 @@ class CacheMiddlewareTest extends TestCase
         $this->assertEquals(null, $res);
     }
 
-    /**
-     * Test adding to cache index
-     */
-    public function testAddRemoveKey(){
-        $obj = new CacheMiddleware();
-        $obj->addKey('testonly_php_unit');
-    }
-
 }
