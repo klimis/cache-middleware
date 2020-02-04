@@ -12,13 +12,14 @@
 
 namespace Klimis\CacheMiddleware\Middleware;
 
+use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Request;
 
 class CacheMiddleware
 {
-    static $indexKey = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
+    protected static $indexKey = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.
      * if cache is disabled just proceed with the response
@@ -28,9 +29,10 @@ class CacheMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $controller = $this->getCalledController($request);
-        $method = $this->getCalledMethod($request);
-        $timeout = $controller->cacheMethod($method); //timeout in seconds. if -1 then no cache
+        $controller = $this->getCalledController($request); // get the calling contoller
+        $method = $this->getCalledMethod($request); // get the  method of the controller
+        $timeout = $this->cacheStatus($controller, $method); //timeout in seconds. if null then no cache
+
         if ($timeout >= 0) { //if method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller);
             if (Cache::has($cacheKey)) { //return if it exists in cache
@@ -38,16 +40,37 @@ class CacheMiddleware
             }
             $response = $next($request);
             if ($response->getStatusCode() == 200) {//add only if response is 200 with data
-                if($timeout === 0) {
+                if ($timeout === 0) {
                     Cache::forever($cacheKey, $response->getContent()); // add to cache forever
-                }else{
-                    Cache::put($cacheKey, $response->getContent(),$timeout); //add to cache with timeout
+                } else {
+                    Cache::put($cacheKey, $response->getContent(), $timeout); //add to cache with timeout
                 }
                 $this->addKey($cacheKey); //add to main cache key used for tracking all keys
             }
         }
         $response = $next($request);
         return $response;
+    }
+
+    /*** Cache Status of method.
+     * > 0 : timeout defined
+     * 0 :   forever
+     * null : no cache
+     * @param Controller $controller
+     * @param string $method
+     * @return int|null
+     */
+    public function cacheStatus(Controller $controller, string $method): ?int
+    {
+        $cache = null; //no cache
+        if (property_exists($controller, 'cache')) {
+            if (isset($controller->cache[$method])) {
+                $cache = $controller->cache[$method]; //if timeout isset timeout time in seconds
+            } elseif (in_array($method, $controller->cache)) { //if not timeout isset return 0
+                $cache = 0;
+            }
+        }
+        return $cache;
     }
 
     /** Get Controller as class
