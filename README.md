@@ -1,5 +1,6 @@
 ### Cache Middleware 
 ##### (For Laravel Controllers)
+[![Build Status](https://travis-ci.org/klimis/cache-middleware.svg?branch=master)](https://travis-ci.org/klimis/cache-middleware)
 [![Generic badge](https://img.shields.io/badge/stable-1.0.4-<COLOR>.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/licence-MIT-BROWN.svg)](https://shields.io/)
 
