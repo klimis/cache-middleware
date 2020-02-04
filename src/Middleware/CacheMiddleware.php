@@ -60,7 +60,7 @@ class CacheMiddleware
      * @param string $method
      * @return int|null
      */
-    public function cacheStatus(Controller $controller, string $method): ?int
+    public function cacheStatus($controller, string $method): ?int
     {
         $cache = null; //no cache
         if (property_exists($controller, 'cache')) {

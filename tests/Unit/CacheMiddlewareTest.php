@@ -4,6 +4,9 @@ namespace Tests\Unit;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Klimis\CacheMiddleware\Http\Controllers\Controller;
+use Klimis\CacheMiddleware\Http\Controllers\ControllerTimeout;
+use Klimis\CacheMiddleware\Http\Controllers\TestController;
 use Klimis\CacheMiddleware\Middleware\CacheMiddleware;
 use Orchestra\Testbench\TestCase;
 
@@ -25,11 +28,6 @@ class CacheMiddlewareTest extends TestCase
         return $method;
     }
 
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
     public function testStringify()
     {
         $foo = self::getMethod('stringify', $this->class);
@@ -38,8 +36,42 @@ class CacheMiddlewareTest extends TestCase
         $this->assertIsString($res);
     }
 
-    public function testAddKey(){
+    public function testCacheStatus()
+    {
+        $controller = new TestController();
+        $controller->cache = ['test'];
+        $method = 'test';
+        $obj = new CacheMiddleware();
+        $res = $obj->cacheStatus($controller, $method);
+        $this->assertEquals(0, $res);
+    }
 
+    public function testCacheStatusWithTimeout()
+    {
+        $controller = new TestController();
+        $controller->cache = ['test' => 10];
+        $method = 'test';
+        $obj = new CacheMiddleware();
+        $res = $obj->cacheStatus($controller, $method);
+        $this->assertEquals(10, $res);
+    }
+
+    public function testCacheStatusNoCache()
+    {
+        $controller = new TestController();
+
+        $method = 'test';
+        $obj = new CacheMiddleware();
+        $res = $obj->cacheStatus($controller, $method);
+        $this->assertEquals(null, $res);
+    }
+
+    /**
+     * Test adding to cache index
+     */
+    public function testAddRemoveKey(){
+        $obj = new CacheMiddleware();
+        $obj->addKey('testonly_php_unit');
     }
 
 }
