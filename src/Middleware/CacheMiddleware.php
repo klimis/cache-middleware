@@ -33,7 +33,7 @@ class CacheMiddleware
         $method = $this->getCalledMethod($request); // get the  method of the controller
         $timeout = $this->cacheStatus($controller, $method); //timeout in seconds. if null then no cache
 
-        if ($timeout >= 0) { //if method has cache property set
+        if (is_numeric($timeout)) { //if method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller);
             if (Cache::has($cacheKey)) { //return if it exists in cache
                 return response()->json(json_decode(Cache::get($cacheKey), true));
