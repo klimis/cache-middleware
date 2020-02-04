@@ -9,6 +9,9 @@
     ],
     "minimum-stability": "dev",
     "require": {},
+    "require-dev": {
+        "orchestra/testbench": "^3.8"
+    },
     "autoload": {
         "psr-4": {
             "Klimis\\CacheMiddleware\\": "src/"

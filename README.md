@@ -21,5 +21,6 @@ Set methods to be cached in Controllers. Add to any controller `protected $cache
 
 ##### TODO
 * Move controller methods to middleware.
-* Unit test
+* More Unit test
+* Create job for cleaning cache 
 

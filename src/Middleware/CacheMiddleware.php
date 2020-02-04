@@ -95,7 +95,7 @@ class CacheMiddleware
      * @param $controller
      * @return string
      */
-    protected function keyGenerator(Request $request, Controller $controller)
+    protected function keyGenerator(Request $request, Controller $controller) : string
     {
         return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getMethod());
     }
@@ -104,7 +104,7 @@ class CacheMiddleware
      * @param array $array
      * @return string
      */
-    protected function stringify(array $array)
+    protected function stringify(array $array) : string
     {
         return collect($array)->toJson();
     }
