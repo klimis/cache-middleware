@@ -1,6 +1,6 @@
 ### Cache Middleware 
 ##### (For Laravel Controllers)
-[![Generic badge](https://img.shields.io/badge/stable-1.0.1-<COLOR>.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/stable-1.0.2-<COLOR>.svg)](https://shields.io/)
 [![Generic badge](https://img.shields.io/badge/licence-MIT-BROWN.svg)](https://shields.io/)
 
 #### Installation
@@ -13,7 +13,7 @@ Composer:
          }
      ]`
 
-`"klimis/cachemiddleware": "^1.0.1"`     
+`"klimis/cachemiddleware": "^1.0.2"`     
 #### Usage
 Set methods to be cached in Controllers. Add to any controller `protected $cache = ['getPage'];` to cache forever or 
 `protected  $cache = ['getPage' => 60] ;` for cache with timeout
