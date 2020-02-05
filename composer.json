@@ -1,5 +1,6 @@
 {
     "name": "klimis/cachemiddleware",
+    "license": "MIT",
     "type": "library",
     "authors": [
         {
