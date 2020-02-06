@@ -7,14 +7,7 @@
 #### Installation
 Composer:
 
-`"repositories": [
-         {
-             "type": "vcs",
-             "url":  "git@github.com:klimis/cache-middleware.git"
-         }
-     ]`
-
-`"klimis/cachemiddleware": "^1.0.4"`     
+`"klimis/cachemiddleware": "^1.0"`     
 #### Usage
 Set methods to be cached in Controllers. Add to any controller `protected $cache = ['getPage'];` to cache forever or 
 `protected  $cache = ['getPage' => 60] ;` for cache with timeout
@@ -25,4 +18,5 @@ Set methods to be cached in Controllers. Add to any controller `protected $cache
 * More Unit test
 * Create job for cleaning cache 
 * Hash key
+* add no-cache header
 
