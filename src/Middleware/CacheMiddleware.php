@@ -16,10 +16,12 @@ use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Request;
+use TCG\Voyager\FormFields\TextHandler;
 
 class CacheMiddleware
 {
     protected static $indexKey = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
+    CONST NOCACHEHEADER = 'Api-Disable-Cache';
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.
      * if cache is disabled just proceed with the response
@@ -33,7 +35,9 @@ class CacheMiddleware
         $method = $this->getCalledMethod($request); // get the  method of the controller
         $timeout = $this->cacheStatus($controller, $method); //timeout in seconds. if null then no cache
 
-        if (is_numeric($timeout)) { //if method has cache property set
+        $this->noCacheRequest();
+
+        if (is_numeric($timeout) && $this->noCacheRequest() != 1) { //if method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller);
             if (Cache::has($cacheKey)) { //return if it exists in cache
                 return response()->json(json_decode(Cache::get($cacheKey), true));
@@ -50,6 +54,11 @@ class CacheMiddleware
         }
         $response = $next($request);
         return $response;
+    }
+
+    protected function noCacheRequest()
+    {
+        return request()->header(self::NOCACHEHEADER);
     }
 
     /*** Cache Status of method.
@@ -95,7 +104,7 @@ class CacheMiddleware
      * @param $controller
      * @return string
      */
-    protected function keyGenerator(Request $request, Controller $controller) : string
+    protected function keyGenerator(Request $request, Controller $controller): string
     {
         return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getMethod());
     }
@@ -104,7 +113,7 @@ class CacheMiddleware
      * @param array $array
      * @return string
      */
-    protected function stringify(array $array) : string
+    protected function stringify(array $array): string
     {
         return collect($array)->toJson();
     }
