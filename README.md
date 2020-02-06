@@ -6,8 +6,8 @@
 
 #### Installation
 Composer:
-
-`"klimis/cachemiddleware": "^1.0"`     
+1. `"klimis/cachemiddleware": "^1.0"`
+2. Register in Kernel.php.  Eg `'cache' => \Klimis\CacheMiddleware\Middleware\CacheMiddleware::class`   
 #### Usage
 Set methods to be cached in Controllers. Add to any controller `protected $cache = ['getPage'];` to cache forever or 
 `protected  $cache = ['getPage' => 60] ;` for cache with timeout
