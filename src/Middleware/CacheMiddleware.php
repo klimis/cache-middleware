@@ -50,6 +50,9 @@ class CacheMiddleware
                 $this->addKey($cacheKey); //add to main cache key used for tracking all keys
             }
         }
+        else{
+            $response = $next($request); //no cache but middleware is define
+        }
         return $response;
     }
 
