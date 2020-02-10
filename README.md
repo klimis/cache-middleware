@@ -1,7 +1,7 @@
 ### Cache Middleware 
 ##### (For Laravel Controllers)
 [![Build Status](https://travis-ci.org/klimis/cache-middleware.svg?branch=master)](https://travis-ci.org/klimis/cache-middleware)
-[![Generic badge](https://img.shields.io/badge/stable-1.0.7-<COLOR>.svg)](https://github.com/klimis/cache-middleware/tree/1.0.7)
+[![Generic badge](https://img.shields.io/badge/stable-1.0.8-<COLOR>.svg)](https://github.com/klimis/cache-middleware/tree/1.0.8)
 [![Generic badge](https://img.shields.io/badge/licence-MIT-BROWN.svg)](https://opensource.org/licenses/MIT)
 
 #### Installation

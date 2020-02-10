@@ -15,12 +15,12 @@ namespace Klimis\CacheMiddleware\Middleware;
 use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\Request;
-use TCG\Voyager\FormFields\TextHandler;
 
 class CacheMiddleware
 {
-    protected static $indexKey = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
+    CONST INDEXKEY = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
     CONST NOCACHEHEADER = 'Api-Disable-Cache';
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.
@@ -33,32 +33,49 @@ class CacheMiddleware
     {
         $controller = $this->getCalledController($request); // get the calling contoller
         $method = $this->getCalledMethod($request); // get the  method of the controller
-        $timeout = $this->cacheStatus($controller, $method); //timeout in seconds. if null then no cache
+        $cacheStatus = $this->cacheStatus($controller, $method); //timeout in seconds. if null then no cache
 
-        $this->noCacheRequest();
 
-        if (is_numeric($timeout) && $this->noCacheRequest() != 1) { //if method has cache property set
-            $cacheKey = $this->keyGenerator($request, $controller);
-            if (Cache::has($cacheKey)) { //return if it exists in cache
+
+        if (is_numeric($cacheStatus) && !$this->noCacheRequest()) { //if method has cache property set
+
+            $cacheKey = $this->keyGenerator($request, $controller); // Use generator to create cache key
+            if (Cache::has($cacheKey)) { // Return from cache if it exists in cache
                 return response()->json(json_decode(Cache::get($cacheKey), true));
             }
+
             $response = $next($request);
             if ($response->getStatusCode() == 200) {//add only if response is 200 with data
-                if ($timeout === 0) {
-                    Cache::forever($cacheKey, $response->getContent()); // add to cache forever
-                } else {
-                    Cache::put($cacheKey, $response->getContent(), $timeout); //add to cache with timeout
-                }
+                $this->addCache($response, $cacheKey, $cacheStatus);
                 $this->addKey($cacheKey); //add to main cache key used for tracking all keys
             }
         }
-        $response = $next($request);
         return $response;
     }
 
-    protected function noCacheRequest()
+    /** Add to Cache
+     * Forever if cachestatus = 0
+     * With expire date if cachestatus > 0
+     * @param Response $response
+     * @param string $cacheKey
+     * @param $cacheStatus
+     */
+    protected function addCache($response, string $cacheKey, $cacheStatus): void
     {
-        return request()->header(self::NOCACHEHEADER);
+        if ($cacheStatus === 0) {
+            Cache::forever($cacheKey, $response->getContent()); // add to cache forever
+        } else {
+            Cache::put($cacheKey, $response->getContent(), $cacheStatus); //add to cache with timeout
+        }
+    }
+
+    /** Set by client
+     *  If = 1 then no cache for specific request
+     * @return array|string|null
+     */
+    protected function noCacheRequest() : bool
+    {
+        return request()->header(self::NOCACHEHEADER) == 1 ? true : false;
     }
 
     /*** Cache Status of method.
@@ -127,7 +144,7 @@ class CacheMiddleware
         if (is_array($keys) && !in_array($key, $keys)) {
             array_push($keys, $key);
         }
-        Cache::put(self::$indexKey, implode('####', $keys));
+        Cache::put(self::INDEXKEY, implode('####', $keys));
     }
 
     /** Get all keys
@@ -135,7 +152,7 @@ class CacheMiddleware
      */
     public function getAllKeys()
     {
-        $keysString = Cache::get(self::$indexKey);
+        $keysString = Cache::get(self::INDEXKEY);
         if ($keysString && (strpos($keysString, '####') !== false)) {
             $allKeys = explode('####', $keysString);
         } else {
@@ -153,6 +170,6 @@ class CacheMiddleware
         if (($key = array_search($keytodel, $keys)) !== false) {
             unset($keys[$key]);
         }
-        Cache::put(self::$indexKey, implode('####', $keys));
+        Cache::put(self::INDEXKEY, implode('####', $keys));
     }
 }
