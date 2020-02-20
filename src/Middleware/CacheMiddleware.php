@@ -7,7 +7,7 @@
  * Middleware for caching Controllers responses. To use controller must:
  * 1. extend from ApiController
  * 2. add methods to  cache in protected $cache = ["method1","method2"];
- * 3. Cached methods with timeout are not deleted from ALL-CACHED-KEYS-KEY !!!!!
+ * 3. IMPORTANT: Cached methods with timeout are not deleted from ALL-CACHED-KEYS-KEY !!!!!
  */
 
 namespace Klimis\CacheMiddleware\Middleware;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 class CacheMiddleware
 {
     CONST INDEXKEY = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
-    CONST NOCACHEHEADER = 'Api-Disable-Cache';
+    CONST NOCACHEHEADER = 'Api-Disable-Cache'; //Set this header to 0 avoid caching
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.
      * if cache is disabled just proceed with the response
@@ -31,24 +31,17 @@ class CacheMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $controller = $this->getCalledController($request); // get the calling contoller
-        $method = $this->getCalledMethod($request); // get the  method of the controller
-        $cacheStatus = $this->cacheStatus($controller, $method); //timeout in seconds. if null then no cache
+        $controller = $this->getCalledController($request); // Get the calling contoller
+        $method = $this->getCalledMethod($request); // Get the  method of the controller
+        $cacheStatus = $this->cacheStatus($controller, $method); // Timeout in seconds. if null then no cache
 
-
-
-        if (is_numeric($cacheStatus) && !$this->noCacheRequest()) { //if method has cache property set
-
+        if (is_numeric($cacheStatus) && !$this->noCacheRequest()) { // If method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller); // Use generator to create cache key
             if (Cache::has($cacheKey)) { // Return from cache if it exists in cache
                 return response()->json(json_decode(Cache::get($cacheKey), true));
             }
-
             $response = $next($request);
-            if ($response->getStatusCode() == 200) {//add only if response is 200 with data
-                $this->addCache($response, $cacheKey, $cacheStatus);
-                $this->addKey($cacheKey); //add to main cache key used for tracking all keys
-            }
+            $response->getStatusCode() == 200 ? $this->addCache($response, $cacheKey, $cacheStatus) : null;
         }
         else{
             $response = $next($request); //no cache but middleware is define
@@ -70,6 +63,7 @@ class CacheMiddleware
         } else {
             Cache::put($cacheKey, $response->getContent(), $cacheStatus); //add to cache with timeout
         }
+        $this->addKey($cacheKey); //add to main cache key used for tracking all keys
     }
 
     /** Set by client
