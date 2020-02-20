@@ -9,8 +9,8 @@ Composer:
 1. `"klimis/cachemiddleware": "^1.0"`
 2. Register in Kernel.php.  Eg `'cache' => \Klimis\CacheMiddleware\Middleware\CacheMiddleware::class`   
 #### Usage
-* Set methods to be cached in Controllers. Add to any controller `protected $cache = ['getPage'];` to cache forever or 
-`protected  $cache = ['getPage' => 60] ;` for cache with timeout
+* Set methods to be cached in Controllers. Add to any controller `public $cache = ['getPage'];` to cache forever or 
+`public  $cache = ['getPage' => 60] ;` for cache with timeout
 * Use header `Api-Disable-Cache = 1` to force disable cache for request
 
 ##### TODO
