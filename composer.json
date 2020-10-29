@@ -1,5 +1,6 @@
 {
     "name": "klimis/cachemiddleware",
+    "description": "Cache Laravel controllers' response",
     "license": "MIT",
     "type": "library",
     "authors": [
