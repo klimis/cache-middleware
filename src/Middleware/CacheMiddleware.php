@@ -95,9 +95,9 @@ class CacheMiddleware
                 $cache = $controller->cache[$method]; //if timeout isset timeout time in seconds
             } elseif (in_array($method, $controller->cache)) { //if not timeout isset return 0
                 $cache = 0;
-            } elseif (setting('global.enable_global_cache')) { //if cms setting is true cache all methods that already have cache middleware
-                $cache = 0;
             }
+        }elseif (env('GLOBAL_CACHE')) { //if env
+            $cache = 0;
         }
         return $cache;
     }
