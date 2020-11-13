@@ -7,7 +7,11 @@
  * Middleware for caching Controllers responses. To use controller must:
  * 1. extend from ApiController
  * 2. add methods to  cache in protected $cache = ["method1","method2"];
- * 3. IMPORTANT: Cached methods with timeout are not deleted from ALL-CACHED-KEYS-KEY !!!!!
+ * 3. with timeout public  $cache = [
+'methodA' => 10
+];
+ *  4. setting('global.enable_global_cache'). Enable globally if cache middleware exists for method
+ * 5. IMPORTANT: Cached methods with timeout are not deleted from ALL-CACHED-KEYS-KEY !!!!!
  */
 
 namespace Klimis\CacheMiddleware\Middleware;
@@ -90,6 +94,8 @@ class CacheMiddleware
             if (isset($controller->cache[$method])) {
                 $cache = $controller->cache[$method]; //if timeout isset timeout time in seconds
             } elseif (in_array($method, $controller->cache)) { //if not timeout isset return 0
+                $cache = 0;
+            } elseif (setting('global.enable_global_cache')) { //if cms setting is true cache all methods that already have cache middleware
                 $cache = 0;
             }
         }
