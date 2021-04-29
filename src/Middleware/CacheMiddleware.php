@@ -120,13 +120,14 @@ class CacheMiddleware
 
     /**
      * Take controller namespace , path, and method
+     * getContent() gets json body payloads
      * @param Request $request
      * @param $controller
      * @return string
      */
     protected function keyGenerator(Request $request, $controller): string
     {
-        return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getMethod());
+        return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getContent() . $request->getMethod() . env('APP_REAL_ENV'));
     }
 
     /** convert get params to json
