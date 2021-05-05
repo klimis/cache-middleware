@@ -12,6 +12,8 @@ Composer:
 * Set methods to be cached in Controllers. Add to any controller `public $cache = ['getPage'];` to cache forever or 
 `public  $cache = ['getPage' => 60] ;` for cache with timeout
 * Use header `Api-Disable-Cache = 1` to force disable cache for request
+* Check response header `X-Is-From-Coin-Cache` to check if response is coming from cache
+* Set env `DISABLE_CACHE` to true to disable all cache
 
 ##### TODO
 * Move controller methods to middleware.
