@@ -42,7 +42,7 @@ class CacheMiddleware
         if (is_numeric($cacheStatus) && !$this->noCacheRequest() && !env('DISABLE_CACHE')) { // If method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller); // Use generator to create cache key
             if (Cache::has($cacheKey)) { // Return from cache if it exists in cache
-                return response()->json(json_decode(Cache::get($cacheKey), true));
+                return response()->json(json_decode(Cache::get($cacheKey), true))->header('X-Is-From-Coin-Cache', true);
             }
             $response = $next($request);
             $response->getStatusCode() == 200 ? $this->addCache($response, $cacheKey, $cacheStatus) : null;
