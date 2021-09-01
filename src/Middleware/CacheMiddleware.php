@@ -127,7 +127,8 @@ class CacheMiddleware
      */
     protected function keyGenerator(Request $request, $controller): string
     {
-        return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getContent() . $request->getMethod() . env('APP_REAL_ENV'));
+        //return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getContent() . $request->getMethod() . env('APP_REAL_ENV'));
+        return str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[',']'], ["_", "_", '_', "_", "_"], $request->path() . $this->stringify($request->all()) . $request->getContent() ."_". $request->getMethod() ."_". env('APP_REAL_ENV'));
     }
 
     /** convert get params to json
