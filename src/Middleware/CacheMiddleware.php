@@ -37,7 +37,7 @@ class CacheMiddleware
     {
         $controller = $this->getCalledController($request); // Get the calling contoller
         $method = $this->getCalledMethod($request); // Get the  method of the controller
-        $cacheStatus = $this->cacheStatus($controller, $method); // Timeout in seconds. if null then no cache
+        $cacheStatus = $this->cacheStatus($controller, $method, $request); // Timeout in seconds. if null then no cache
 
         if (is_numeric($cacheStatus) && !$this->noCacheRequest() && !env('DISABLE_CACHE')) { // If method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller); // Use generator to create cache key
@@ -87,19 +87,46 @@ class CacheMiddleware
      * @param string $method
      * @return int|null
      */
-    public function cacheStatus($controller, string $method): ?int
+    public function cacheStatus($controller, string $method, Request $request): ?int
     {
         $cache = null; //no cache
         if (property_exists($controller, 'cache')) {
-            if (isset($controller->cache[$method])) {
-                $cache = $controller->cache[$method]; //if timeout isset timeout time in seconds
-            } elseif (in_array($method, $controller->cache)) { //if not timeout isset return 0
-                $cache = 0;
+            $isException = $this->isException($controller, $method, $request);
+            if (!$isException) {
+                if (isset($controller->cache[$method])) {
+                    $cache = $controller->cache[$method]; //if timeout isset timeout time in seconds
+                } elseif (in_array($method, $controller->cache)) { //if not timeout isset return 0
+                    $cache = 0;
+                }
             }
         }elseif (env('GLOBAL_CACHE')) { //if env
             $cache = 0;
         }
         return $cache;
+    }
+
+    /** Fucntion to check if page_type belongs to exceptions
+     * This is to allow specific cms/page requests to NOT be cached. eg page_type data-hub-explorer that fetches random results
+     * @param $controller
+     * @param string $method
+     * @param Request $request
+     * @return bool
+     */
+    protected function isException($controller, string $method, Request $request): bool
+    {
+        //FOR PAGE TYPE ONLY AT THE MOMENT. FOR CMS/PAGE REQUESTS. EXCLUDE PAGES
+        $exception = false;
+        $content = json_decode($request->getContent(), true); //get payload
+        $pageType = null;
+        if (isset($content['page_type']) && isset($controller->cacheExceptions[$method]['page_type'])) {
+            $pageType = $content['page_type'];
+            if (in_array($pageType, $controller->cacheExceptions[$method]['page_type'])) {
+                $exception = true;
+            } else {
+                $exception = false;
+            }
+        };
+        return $exception;
     }
 
     /** Get Controller as class
