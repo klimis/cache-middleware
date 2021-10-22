@@ -14,6 +14,7 @@ Composer:
 * Use header `Api-Disable-Cache = 1` to force disable cache for request
 * Check response header `X-Is-From-Coin-Cache` to check if response is coming from cache
 * Set env `DISABLE_CACHE` to true to disable all cache
+* 1.3.1 
 * Added cacheExceptions eg ` public $cacheExceptions = [
   'getPage' => [
   "page_type" => ["data-hub-explorer","test"]    ]
