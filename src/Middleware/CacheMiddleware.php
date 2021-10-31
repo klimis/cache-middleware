@@ -67,7 +67,6 @@ class CacheMiddleware
         } else {
             Cache::put($cacheKey, $response->getContent(), $cacheStatus); //add to cache with timeout
         }
-        $this->addKey($cacheKey); //add to main cache key used for tracking all keys
     }
 
     /** Set by client
@@ -166,42 +165,14 @@ class CacheMiddleware
     {
         return collect($array)->toJson();
     }
-
-    /** Create key if not exists in reference cache key
-     * @param string $key
-     */
-    public function addKey(string $key)
-    {
-        $keys = $this->getAllKeys();
-        if (is_array($keys) && !in_array($key, $keys)) {
-            array_push($keys, $key);
-        }
-        Cache::put(self::INDEXKEY, implode('####', $keys));
-    }
-
-    /** Get all keys
-     * @return array
-     */
-    public function getAllKeys()
-    {
-        $keysString = Cache::get(self::INDEXKEY);
-        if ($keysString && (strpos($keysString, '####') !== false)) {
-            $allKeys = explode('####', $keysString);
-        } else {
-            $allKeys[] = $keysString;
-        }
-        return array_filter($allKeys);
-    }
+   
 
     /** Remove key from index  key
      * @param string $keytodel
      */
     public function removeKey(string $keytodel)
     {
-        $keys = $this->getAllKeys();
-        if (($key = array_search($keytodel, $keys)) !== false) {
-            unset($keys[$key]);
-        }
-        Cache::put(self::INDEXKEY, implode('####', $keys));
+        Cache::forget($keytodel);
+
     }
 }
