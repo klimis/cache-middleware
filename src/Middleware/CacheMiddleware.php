@@ -155,7 +155,7 @@ class CacheMiddleware
     protected function keyGenerator(Request $request, $controller): string
     {
         $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']'], ["_", "_", '_', "_", "_"], $request->path() . $this->stringify($request->all()) . $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV'));
-        Log::debug(sprintf('%s - %s', $key, $md5 = md5(key)));
+        Log::debug(sprintf('%s - %s', $key, $md5 = md5($key)));
         return $md5;
     }
 
