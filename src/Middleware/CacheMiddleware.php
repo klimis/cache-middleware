@@ -8,8 +8,8 @@
  * 1. extend from ApiController
  * 2. add methods to  cache in protected $cache = ["method1","method2"];
  * 3. with timeout public  $cache = [
-'methodA' => 10
-];
+ * 'methodA' => 10
+ * ];
  *  4. setting('global.enable_global_cache'). Enable globally if cache middleware exists for method
  * 5. IMPORTANT: Cached methods with timeout are not deleted from ALL-CACHED-KEYS-KEY !!!!!
  */
@@ -19,13 +19,14 @@ namespace Klimis\CacheMiddleware\Middleware;
 use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 class CacheMiddleware
 {
-    CONST INDEXKEY = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
-    CONST NOCACHEHEADER = 'Api-Disable-Cache'; //Set this header to 0 avoid caching
+    const INDEXKEY = 'ALL-CACHED-KEYS-KEY'; // master main index key. we keep references here for all keys
+    const NOCACHEHEADER = 'Api-Disable-Cache'; //Set this header to 0 avoid caching
 
     /** Check if incoming method has cache enabled. if yes returned cached results if exists. otherwise add it to cache.
      * if cache is disabled just proceed with the response
@@ -46,8 +47,7 @@ class CacheMiddleware
             }
             $response = $next($request);
             $response->getStatusCode() == 200 ? $this->addCache($response, $cacheKey, $cacheStatus) : null;
-        }
-        else{
+        } else {
             $response = $next($request); //no cache but middleware is define
         }
         return $response;
@@ -74,7 +74,7 @@ class CacheMiddleware
      *  If = 1 then no cache for specific request
      * @return array|string|null
      */
-    protected function noCacheRequest() : bool
+    protected function noCacheRequest(): bool
     {
         return request()->header(self::NOCACHEHEADER) == 1 ? true : false;
     }
@@ -99,7 +99,7 @@ class CacheMiddleware
                     $cache = 0;
                 }
             }
-        }elseif (env('GLOBAL_CACHE')) { //if env
+        } elseif (env('GLOBAL_CACHE')) { //if env
             $cache = 0;
         }
         return $cache;
@@ -154,8 +154,9 @@ class CacheMiddleware
      */
     protected function keyGenerator(Request $request, $controller): string
     {
-        //return str_ireplace(["\\", '{', '}', '/', '"', ',', ':'], ["_", "_", '_', "_"], get_class($controller) . $request->getPathInfo() . $this->stringify($request->all()) . $request->getContent() . $request->getMethod() . env('APP_REAL_ENV'));
-        return md5(str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[',']'], ["_", "_", '_', "_", "_"], $request->path() . $this->stringify($request->all()) . $request->getContent() ."_". $request->getMethod() ."_". env('APP_REAL_ENV')));
+        $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']'], ["_", "_", '_', "_", "_"], $request->path() . $this->stringify($request->all()) . $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV'));
+        Log::debug(sprintf('%s - %s', $key, $md5 = md5(key)));
+        return $md5;
     }
 
     /** convert get params to json
