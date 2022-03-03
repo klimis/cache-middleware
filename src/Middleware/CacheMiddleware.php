@@ -159,6 +159,7 @@ class CacheMiddleware
     {
         $params = $this->stringify($request->all()) . $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
         $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']',' '], ["_"], $request->path() . $params);
+        $key = trim(preg_replace('~[\r\n]+~', '_', $key)); //replace new lines
         return md5($key);
     }
 
