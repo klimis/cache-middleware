@@ -196,8 +196,7 @@ class CacheMiddleware
             $type = "component";
             $source = 'query';
         }
-
-        $params = $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
+        $params = $this->stringify($request->all()) . $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
         $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']', ' '], ["_"], $request->path() . $params);
         $keyFinal = sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
         Log::debug($keyFinal);
