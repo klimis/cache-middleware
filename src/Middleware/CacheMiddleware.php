@@ -157,6 +157,55 @@ class CacheMiddleware
      */
     protected function keyGenerator(Request $request, $controller): string
     {
+
+
+        $code = null;
+        $type = null;
+        $source = null;
+
+        $map = $request->get('map', null); //this for pycharm requests
+        if (isset($map['code'])) { //for indice and unit profiles
+            $code = $map['code'];
+            $type = $map['type'];
+            $source = 'cms-page';
+        }
+
+        $map = $request->json()->get('map', null);
+        if (isset($map['code'])) { //this for client side requests
+            $code = $map['code'];
+            $type = $map['type'];
+            $source = 'cms-page';
+        }
+
+        $index_code = $request->get('index_code', null);
+        if (isset($index_code)) {
+            $code = $index_code;
+            $type = "indice";
+            $source = 'query';
+        }
+        $unitCode = $request->get('unit_code', null);
+        if (isset($unitCode)) {
+            $code = $unitCode;
+            $type = "unit";
+            $source = 'query';
+        }
+
+        $component = $request->get('component', null);
+        if (isset($component)) {
+            $code = $component;
+            $type = "component";
+            $source = 'query';
+        }
+
+        $params = $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
+        $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']', ' '], ["_"], $request->path() . $params);
+        $keyFinal = sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
+        Log::debug($keyFinal);
+        return $keyFinal;
+    }
+    
+    protected function keyGeneratorDEP(Request $request, $controller): string
+    {
         $params = $this->stringify($request->all()) . $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
         $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']',' '], ["_"], $request->path() . $params);
         //$key = trim(preg_replace('~[\r\n]+~', '_', $key)); //replace new lines
