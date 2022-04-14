@@ -201,7 +201,7 @@ class CacheMiddleware
         $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']', ' '], ["_"], $request->path() . $params);
         $keyFinal = sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
 
-        
+
 
         return $keyFinal;
     }
