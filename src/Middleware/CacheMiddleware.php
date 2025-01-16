@@ -63,7 +63,7 @@ class CacheMiddleware
      * @param string $cacheKey
      * @param $cacheStatus
      */
-    protected function addCache($response, string $cacheKey, $cacheStatus): void
+    protected function addCache(Response $response, string $cacheKey, $cacheStatus): void
     {
         if ($cacheStatus === 0) {
             Cache::forever($cacheKey, $response->getContent()); // add to cache forever
@@ -79,7 +79,7 @@ class CacheMiddleware
      */
     protected function noCacheRequest(): bool
     {
-        return request()->header(self::NOCACHEHEADER) == 1 ? true : false;
+        return request()->header(self::NOCACHEHEADER) == 1;
     }
 
     /*** Cache Status of method.
@@ -157,8 +157,6 @@ class CacheMiddleware
      */
     protected function keyGenerator(Request $request, $controller): string
     {
-
-
         $code = null;
         $type = null;
         $source = null;
@@ -199,20 +197,9 @@ class CacheMiddleware
         //replace all new lines so requests from diffrent sources (browser, cli etc) match
         $params = str_replace(array("\n","\r"), '', $request->getContent()) . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
         $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']', ' '], ["_"], $request->path() . $params);
-        $keyFinal = sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
-
-
-
-        return $keyFinal;
+        return  sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
     }
-    
-    protected function keyGeneratorDEP(Request $request, $controller): string
-    {
-        $params = $this->stringify($request->all()) . $request->getContent() . "_" . $request->getMethod() . "_" . env('APP_REAL_ENV');
-        $key = str_ireplace(["\\", '{', '}', '//', '"', ',', ':', '[', ']',' '], ["_"], $request->path() . $params);
-        //$key = trim(preg_replace('~[\r\n]+~', '_', $key)); //replace new lines
-        return md5($key);
-    }
+
 
     /** convert get params to json
      * @param array $array
