@@ -14,7 +14,7 @@
  * 4. IMPORTANT: Cached methods with timeout are not deleted from ALL-CACHED-KEYS-KEY !!!!!
  */
 
-namespace App\Http\Middleware;
+namespace Klimis\CacheMiddleware\Middleware;
 
 use App\Http\Controllers\Cms\PageController;
 use App\Http\Controllers\Controller;
