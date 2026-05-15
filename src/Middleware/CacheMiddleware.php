@@ -63,7 +63,7 @@ class CacheMiddleware
      * Forever if cachestatus = 0
      * With expire date if cachestatus > 0
      */
-    protected function addCache(Response $response, string $cacheKey, $cacheStatus): void
+    protected function addCache($response, string $cacheKey, $cacheStatus): void
     {
         if ($cacheStatus === 0) {
             Cache::forever($cacheKey, $response->getContent()); // add to cache forever
