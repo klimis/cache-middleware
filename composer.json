@@ -21,5 +21,12 @@
         "classmap": [
 
         ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Klimis\\CacheMiddleware\\CacheMiddlewareServiceProvider"
+            ]
+        }
     }
 }
