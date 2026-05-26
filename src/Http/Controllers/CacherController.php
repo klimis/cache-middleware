@@ -14,6 +14,13 @@ use Klimis\CacheMiddleware\Middleware\CacheMiddleware;
 class CacherController extends BaseController
 {
     const CACHE_KEY_NAME = 'cachekey';
+
+    public function index(Request $request)
+    {
+        $cache = new CacheMiddleware;
+        return response()->json($cache->getAllKeys());
+
+    }
     public function clearAll(): JsonResponse
     {
         $cache = new CacheMiddleware;
