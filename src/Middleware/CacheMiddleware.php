@@ -165,7 +165,9 @@ class CacheMiddleware
             $source = 'cms-page';
         }
 
-        $map = $request->json()->get('map', null);
+        //$map = $request->json()->get('map', null);
+        $payload = json_decode($request->getContent() ?: '{}', true);
+        $map = $payload['map'] ?? null;
         if (isset($map['code'])) { // this for client side requests
             $code = $map['code'];
             $type = $map['type'];
