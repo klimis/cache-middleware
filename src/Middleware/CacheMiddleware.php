@@ -187,7 +187,7 @@ class CacheMiddleware
             $source = 'query';
         }
 
-        $component = $request->get('component', null);
+        $component = $request->get('comp_id', null);
         if (isset($component)) {
             $code = $component;
             $type = 'component';
