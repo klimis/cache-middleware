@@ -40,13 +40,12 @@ class CacherController extends BaseController
         $key = $request->header(self::CACHE_KEY_NAME);
 
         if ($key) {
-            Log::debug($key);
             if (Cache::forget($key)) {
                 $cache->removeKey($key);
-
-                return $this->response(200, 'key deleted');
+                return response()->json(['message' => 'Cache key Cleared:'.$key]);
             }
         }
-        return response()->json(['message' => 'Cache key Cleared:'.$key]);
+        return response()->json(['message' => 'key not found'], 404);
+
     }
 }
