@@ -22,6 +22,7 @@ use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,6 +45,7 @@ class CacheMiddleware
 
         if (is_numeric($cacheStatus) && ! $this->noCacheRequest() && ! env('DISABLE_CACHE')) { // If method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller); // Use generator to create cache key
+            Log::debug('key: '.$cacheKey);
             if (Cache::has($cacheKey)) { // Return from cache if it exists in cache
                 return response()
                     ->json(json_decode(Cache::get($cacheKey), true))
@@ -175,11 +177,15 @@ class CacheMiddleware
         }
 
         $index_code = $request->get('index_code', null);
+        if (!isset($index_code)) {
+            $index_code = $request->get('index_code_similar', null);
+        }
         if (isset($index_code)) {
             $code = $index_code;
             $type = 'indice';
             $source = 'query';
         }
+
         $unitCode = $request->get('unit_code', null);
         if (isset($unitCode)) {
             $code = $unitCode;
@@ -193,10 +199,10 @@ class CacheMiddleware
             $type = 'component';
             $source = 'query';
         }
-        // replace all new lines so requests from diffrent sources (browser, cli etc) match
-        $params = str_replace(["\n", "\r"], '', $request->getContent()).'_'.$request->getMethod().'_'.env('APP_REAL_ENV');
+        $params = str_replace(["\n", "\r"], '', json_encode($request->all())).'_'.$request->getMethod().'_'.env('APP_REAL_ENV');
         $key = str_ireplace(['\\', '{', '}', '//', '"', ',', ':', '[', ']', ' '], ['_'], $request->path().$params);
 
+        Log::debug('params: '.$params);
         return sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
     }
 
