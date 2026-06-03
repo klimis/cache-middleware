@@ -202,7 +202,6 @@ class CacheMiddleware
         $params = str_replace(["\n", "\r"], '', json_encode($request->all())).'_'.$request->getMethod().'_'.env('APP_REAL_ENV');
         $key = str_ireplace(['\\', '{', '}', '//', '"', ',', ':', '[', ']', ' '], ['_'], $request->path().$params);
 
-        Log::debug('params: '.$params);
         return sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
     }
 
