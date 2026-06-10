@@ -45,7 +45,7 @@ class CacheMiddleware
 
         if (is_numeric($cacheStatus) && ! $this->noCacheRequest() && ! env('DISABLE_CACHE')) { // If method has cache property set
             $cacheKey = $this->keyGenerator($request, $controller); // Use generator to create cache key
-            Log::debug('key: '.$cacheKey);
+            Log::debug('key1: '.$cacheKey);
             if (Cache::has($cacheKey)) { // Return from cache if it exists in cache
                 return response()
                     ->json(json_decode(Cache::get($cacheKey), true))
@@ -170,6 +170,7 @@ class CacheMiddleware
         //$map = $request->json()->get('map', null);
         $payload = json_decode($request->getContent() ?: '{}', true);
         $map = $payload['map'] ?? null;
+        $pageType = $payload['page_type'] ?? null;
         if (isset($map['code'])) { // this for client side requests
             $code = $map['code'];
             $type = $map['type'];
@@ -200,7 +201,7 @@ class CacheMiddleware
             $source = 'query';
         }
         $params = str_replace(["\n", "\r"], '', json_encode($request->all())).'_'.$request->getMethod().'_'.env('APP_REAL_ENV');
-        $key = str_ireplace(['\\', '{', '}', '//', '"', ',', ':', '[', ']', ' '], ['_'], $request->path().$params);
+        $key = str_ireplace(['\\', '{', '}', '//', '"', ',', ':', '[', ']', ' '], ['_'], $request->path().$params.$pageType);
 
         return sprintf('%s|%s|%s|%s', md5($key), $source, $type, $code);
     }
